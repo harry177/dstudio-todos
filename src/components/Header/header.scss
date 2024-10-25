@@ -1,0 +1,15 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  height: 100px;
+}
+
+.header-logo {
+  color: #000000;
+
+  &:hover {
+    color: #000000;
+  }
+}
