@@ -7,13 +7,19 @@ import {
   useForm,
 } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
+import { loginUser, signupUser } from "../../api/requests";
+import { IRegisterData, IRegisterResponse } from "../../api/types";
+import { useAuthToken } from "../../hooks/useAuthToken";
+import useStore from "../../store";
 import "./signup-form.scss";
-import { signupUser } from "../../api/requests";
-import { IRegisterData } from "../../api/types";
 
 export const SignupForm = () => {
   const [isDisabled, setIsDisabled] = useState(false);
   const [isClicked, setIsClicked] = useState(false);
+
+  const { setToken } = useStore();
+
+  const { setAuthToken } = useAuthToken();
 
   const navigate = useNavigate();
 
@@ -32,11 +38,21 @@ export const SignupForm = () => {
     return value === passwordLabel || "Passwords do not match";
   };
 
-  const { mutate } = useMutation<string, Error, IRegisterData>({
+  const { mutate } = useMutation<IRegisterResponse, Error, IRegisterData>({
     mutationFn: signupUser,
-    onSuccess: (newUser) => {
-      console.log(newUser);
-      navigate("/");
+    onSuccess: async () => {
+      const user = {
+        username: getValues("emailLabel"),
+        password: getValues("passwordLabel"),
+      };
+      try {
+        const loginResponse = await loginUser(user);
+        setAuthToken(loginResponse.accessToken);
+        setToken(loginResponse.accessToken);
+        navigate("/");
+      } catch (error) {
+        console.error("Error logging in:", error);
+      }
     },
     onError: (error) => {
       console.error("Error signing up:", error);

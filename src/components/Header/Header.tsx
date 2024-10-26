@@ -1,8 +1,8 @@
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
+import { useAuthToken } from "../../hooks/useAuthToken";
 import useStore from "../../store";
 import "./header.scss";
-import { useAuthToken } from "../../hooks/useAuthToken";
-import { useEffect } from "react";
 
 export const Header = () => {
   const { getAuthToken, removeAuthToken } = useAuthToken();

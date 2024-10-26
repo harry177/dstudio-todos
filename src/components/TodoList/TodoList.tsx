@@ -1,9 +1,9 @@
 import { useEffect } from "react";
-import useStore from "../../store";
 import { useQuery } from "@tanstack/react-query";
+import { Todo } from "../Todo/Todo";
 import { getTodos } from "../../api/requests";
 import { ITodo } from "../../types";
-import { Todo } from "../Todo/Todo";
+import useStore from "../../store";
 
 export const TodoList = () => {
   const { todos, setTodos, token } = useStore();
@@ -44,6 +44,8 @@ export const TodoList = () => {
             description={todo.description}
             dueDate={todo.dueDate}
             isCompleted={todo.isCompleted}
+            createdAt={todo.createdAt}
+            updatedAt={todo.updatedAt}
           />
         );
       })}

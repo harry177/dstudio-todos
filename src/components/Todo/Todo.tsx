@@ -1,8 +1,8 @@
-import { ITodo } from "../../types";
-import "./todo.scss";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import useStore from "../../store";
 import { deleteTodo } from "../../api/requests";
+import { ITodo } from "../../types";
+import useStore from "../../store";
+import "./todo.scss";
 
 export const Todo = ({
   id,
@@ -10,6 +10,8 @@ export const Todo = ({
   description,
   dueDate,
   isCompleted,
+  createdAt,
+  updatedAt
 }: ITodo) => {
   const { token, togglePopup, setEditingTodo } = useStore();
 
@@ -43,7 +45,7 @@ export const Todo = ({
 
   const handleEdit = () => {
     togglePopup();
-    setEditingTodo({ id, title, description, dueDate, isCompleted });
+    setEditingTodo({ id, title, description, dueDate, isCompleted, createdAt, updatedAt });
   };
 
   return (

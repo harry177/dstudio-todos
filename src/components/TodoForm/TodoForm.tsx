@@ -1,34 +1,44 @@
-import { useEffect, useState } from "react";
-import useStore from "../../store";
-import "./todo-form.scss";
+import { useEffect } from "react";
+import {
+  Controller,
+  FieldValues,
+  SubmitHandler,
+  useForm,
+} from "react-hook-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { v4 as uuidv4 } from "uuid";
 import { createTodo, editTodo } from "../../api/requests";
 import { useAuthToken } from "../../hooks/useAuthToken";
 import { ITodo } from "../../types";
-import { v4 as uuidv4 } from "uuid";
+import useStore from "../../store";
+import "./todo-form.scss";
 
 export const TodoForm = () => {
   const { popup, togglePopup, editingTodo, setEditingTodo } = useStore();
-  const [todoTitle, setTodoTitle] = useState("");
-  const [todoText, setTodoText] = useState("");
-  const [todoDueDate, setTodoDueDate] = useState("");
-  const [isCompleted, setIsCompleted] = useState(false);
 
   const { getAuthToken } = useAuthToken();
   const token = getAuthToken();
   const queryClient = useQueryClient();
 
+  const { control, handleSubmit, reset } = useForm({
+    defaultValues: {
+      title: "",
+      description: "",
+      dueDate: "",
+      isCompleted: false,
+    },
+  });
+
   useEffect(() => {
     if (editingTodo) {
-      setTodoTitle(editingTodo.title);
-      setTodoText(editingTodo.description);
-      setTodoDueDate(editingTodo.dueDate.split("T")[0]);
-      setIsCompleted(editingTodo.isCompleted);
+      reset({
+        title: editingTodo.title,
+        description: editingTodo.description,
+        dueDate: editingTodo.dueDate.split("T")[0],
+        isCompleted: editingTodo.isCompleted,
+      });
     } else {
-      setTodoTitle("");
-      setTodoText("");
-      setTodoDueDate("");
-      setIsCompleted(false);
+      reset();
     }
   }, [editingTodo]);
 
@@ -37,7 +47,7 @@ export const TodoForm = () => {
     setEditingTodo(null);
   };
 
-  const { mutate: addTodo } = useMutation<ITodo, Error, ITodo>({
+  const { mutate: addTodo } = useMutation<void, Error, ITodo>({
     mutationFn: async (todo: ITodo) => {
       if (!token) {
         throw new Error("Token is missing");
@@ -63,14 +73,14 @@ export const TodoForm = () => {
     },
   });
 
-  const handleSubmit = () => {
+  const handleForm: SubmitHandler<FieldValues> = (data) => {
     const todo: ITodo = {
       id: editingTodo ? editingTodo.id : uuidv4(),
-      title: todoTitle,
-      description: todoText,
-      isCompleted: isCompleted,
-      dueDate: todoDueDate,
-      createdAt: new Date().toISOString(),
+      title: data.title,
+      description: data.description,
+      isCompleted: data.isCompleted,
+      dueDate: data.dueDate,
+      createdAt: editingTodo ? editingTodo.createdAt : new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
 
@@ -79,39 +89,57 @@ export const TodoForm = () => {
     } else {
       addTodo(todo);
     }
+    reset({
+      title: "",
+      description: "",
+      dueDate: "",
+      isCompleted: false,
+    });
   };
 
   return (
     <>
       <div className={`overlay ${popup ? "visible" : ""}`} onClick={onClose} />
-      <div className={`popup-container ${popup ? "visible" : ""}`}>
-        <input
-          value={todoTitle}
-          onChange={(event) => setTodoTitle(event.target.value)}
+      <form
+        className={`popup-container ${popup ? "visible" : ""}`}
+        onSubmit={handleSubmit(handleForm)}
+      >
+        <Controller
+          control={control}
+          name="title"
+          render={({ field }) => <input {...field} placeholder="Todo Title" />}
         />
-        <textarea
-          value={todoText}
-          onChange={(event) => setTodoText(event.target.value)}
+        <Controller
+          control={control}
+          name="description"
+          render={({ field }) => (
+            <textarea {...field} placeholder="Todo Description" />
+          )}
         />
-        <input
-          type="date"
-          value={todoDueDate}
-          onChange={(event) => setTodoDueDate(event.target.value)}
+        <Controller
+          control={control}
+          name="dueDate"
+          render={({ field }) => <input type="date" {...field} />}
         />
         {editingTodo && (
           <label>
             Is completed:
-            <input
-              type="checkbox"
-              checked={isCompleted}
-              onChange={() => setIsCompleted((prev) => !prev)}
+            <Controller
+              control={control}
+              name="isCompleted"
+              render={({ field: { onChange, value, ref } }) => (
+                <input
+                  type="checkbox"
+                  ref={ref}
+                  checked={value}
+                  onChange={(e) => onChange(e.target.checked)}
+                />
+              )}
             />
           </label>
         )}
-        <button onClick={handleSubmit}>
-          {editingTodo ? "Update" : "Create"}
-        </button>
-      </div>
+        <button type="submit">{editingTodo ? "Update" : "Create"}</button>
+      </form>
     </>
   );
 };

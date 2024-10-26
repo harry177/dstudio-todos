@@ -3,6 +3,10 @@ export interface IRegisterData {
   password: string;
 }
 
+export interface IRegisterResponse {
+  userId: string;
+}
+
 export interface ILoginData {
   username: string;
   password: string;

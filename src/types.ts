@@ -4,6 +4,6 @@ export interface ITodo {
   description: string;
   isCompleted: boolean;
   dueDate: string;
-  createdAt?: string;
-  updatedAt?: string;
+  createdAt: string;
+  updatedAt: string;
 }
