@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Card, Button, Paper, Typography } from "@mui/material";
 import { deleteTodo } from "../../api/requests";
 import { ITodo } from "../../types";
 import useStore from "../../store";
@@ -11,7 +12,7 @@ export const Todo = ({
   dueDate,
   isCompleted,
   createdAt,
-  updatedAt
+  updatedAt,
 }: ITodo) => {
   const { token, togglePopup, setEditingTodo } = useStore();
 
@@ -45,19 +46,41 @@ export const Todo = ({
 
   const handleEdit = () => {
     togglePopup();
-    setEditingTodo({ id, title, description, dueDate, isCompleted, createdAt, updatedAt });
+    setEditingTodo({
+      id,
+      title,
+      description,
+      dueDate,
+      isCompleted,
+      createdAt,
+      updatedAt,
+    });
   };
 
   return (
-    <article className="todo">
-      <div className="todo__container">
-        <h3 className="todo__title">{title}</h3>
-        <p className="todo__text">{description}</p>
-        <p className="todo__text">{formatDate(dueDate)}</p>
+    <Card variant="outlined" className="todo">
+      <Paper className="todo__container">
+        <Typography variant="h6" className="todo__title">
+          {title}
+        </Typography>
+        <div style={{ wordBreak: "break-word" }}>
+          <Typography variant="body1" className="todo__text">
+            {description}
+          </Typography>
+        </div>
+        <Typography variant="body1" className="todo__text">
+          {formatDate(dueDate)}
+        </Typography>
         {isCompleted && <p className="todo__text">Completed</p>}
+      </Paper>
+      <div className="todo__buttons">
+        <Button variant="outlined" onClick={handleEdit}>
+          Edit
+        </Button>
+        <Button variant="outlined" color="error" onClick={handleDelete}>
+          Delete
+        </Button>
       </div>
-      <button onClick={handleEdit}>Edit</button>
-      <button onClick={handleDelete}>Delete</button>
-    </article>
+    </Card>
   );
 };

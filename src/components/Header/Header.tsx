@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
+import { Button, Typography } from '@mui/material';
 import { useAuthToken } from "../../hooks/useAuthToken";
 import useStore from "../../store";
 import "./header.scss";
@@ -30,22 +31,21 @@ export const Header = () => {
   return (
     <header className="header">
       <Link to={"/"} className="header-logo">
-        <h1>TodoPlatform</h1>
+        <Typography variant="h2">TodoPlatform</Typography>
       </Link>
-      <button onClick={addTodo} disabled={!token}>
+      <Button variant="contained" onClick={addTodo} disabled={!token}>
         Add todo
-      </button>
+      </Button>
       {token ? (
-        <button onClick={handleLogout}>Logout</button>
+        <Button variant="contained" onClick={handleLogout}>Logout</Button>
       ) : (
         <Link to={"/login"}>
-          <button>Login</button>
+          <Button variant="contained">Login</Button>
         </Link>
       )}
       <Link to={"/signup"}>
-        <button>Sign up</button>
+        <Button variant="contained">Sign up</Button>
       </Link>
-      {/*{activeUser ? <p>{activeUser}</p> : null}*/}
     </header>
   );
 };

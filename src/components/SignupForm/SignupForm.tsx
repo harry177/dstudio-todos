@@ -7,9 +7,12 @@ import {
   useForm,
 } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Button, TextField } from "@mui/material";
 import { loginUser, signupUser } from "../../api/requests";
 import { IRegisterData, IRegisterResponse } from "../../api/types";
 import { useAuthToken } from "../../hooks/useAuthToken";
+import { SignupFormSchema, TSignupFormSchema } from "./schema";
 import useStore from "../../store";
 import "./signup-form.scss";
 
@@ -29,14 +32,10 @@ export const SignupForm = () => {
     control,
     trigger,
     handleSubmit,
-  } = useForm({
+  } = useForm<TSignupFormSchema>({
     mode: "onChange",
+    resolver: zodResolver(SignupFormSchema),
   });
-
-  const validatePasswordMatch = (value: string) => {
-    const passwordLabel = getValues("passwordLabel");
-    return value === passwordLabel || "Passwords do not match";
-  };
 
   const { mutate } = useMutation<IRegisterResponse, Error, IRegisterData>({
     mutationFn: signupUser,
@@ -84,78 +83,60 @@ export const SignupForm = () => {
   };
 
   return (
-    <form className="signup-form" onSubmit={handleSubmit(handleForm)}>
+    <form className="auth-form" onSubmit={handleSubmit(handleForm)}>
       <div className="form-input__block">
         <label>Email</label>
         <Controller
           control={control}
-          rules={{ required: true, minLength: 3, maxLength: 30 }}
           render={({ field: { onChange, value } }) => (
-            <input
+            <TextField
+              variant="outlined"
               onChange={(ev) => onChange(ev)}
               value={value ? value.toString() : ""}
+              helperText={errors["emailLabel"]?.message?.toString()}
             />
           )}
           name="emailLabel"
         />
-        {errors?.emailLabel?.type === "required" && (
-          <span>The field cannot be empty.</span>
-        )}
-        {errors?.emailLabel?.type === "minLength" && (
-          <span>Email is too short.</span>
-        )}
-        {errors?.emailLabel?.type === "maxLength" && (
-          <span>Email is too long.</span>
-        )}
       </div>
       <div className="form-input__block">
         <label>Password</label>
         <Controller
           control={control}
-          rules={{ required: true, minLength: 3, maxLength: 20 }}
           render={({ field: { onChange, value } }) => (
-            <input
+            <TextField
+              variant="outlined"
               onChange={(ev) => onChange(ev)}
               value={value ? value.toString() : ""}
+              helperText={errors["passwordLabel"]?.message?.toString()}
             />
           )}
           name="passwordLabel"
         />
-        {errors?.passwordLabel?.type === "required" && (
-          <span>The field cannot be empty.</span>
-        )}
-        {errors?.passwordLabel?.type === "minLength" && (
-          <span>Password is too short.</span>
-        )}
-        {errors?.passwordLabel?.type === "maxLength" && (
-          <span>Password is too long.</span>
-        )}
       </div>
       <div className="form-input__block">
         <label>Repeat password</label>
         <Controller
           control={control}
-          rules={{ required: true, validate: validatePasswordMatch }}
           render={({ field: { onChange, value } }) => (
-            <input
+            <TextField
+              variant="outlined"
               onChange={(ev) => onChange(ev)}
               value={value ? value.toString() : ""}
+              helperText={errors["repeatLabel"]?.message?.toString()}
             />
           )}
           name="repeatLabel"
         />
-        {errors?.repeatLabel?.type === "required" && (
-          <span>The field cannot be empty.</span>
-        )}
-        {errors?.repeatLabel?.type === "validate" && <span>Not match.</span>}
       </div>
-      <button
+      <Button
         type="submit"
+        variant="contained"
         disabled={isDisabled}
         onClick={() => setIsClicked(true)}
       >
         Sign up
-      </button>
+      </Button>
     </form>
   );
 };

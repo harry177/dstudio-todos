@@ -1,9 +1,19 @@
 .todo {
     display: flex;
     justify-content: space-around;
+    align-items: center;
+    padding: 20px;
 }
 
 .todo__container {
     display: flex;
     flex-direction: column;
+    gap: 10px;
+    width: 300px;
+    padding: 10px;
+}
+
+.todo__buttons {
+    display: flex;
+    gap: 40px;
 }

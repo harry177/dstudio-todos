@@ -7,9 +7,12 @@ import {
   useForm,
 } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Button, TextField } from "@mui/material";
 import { loginUser } from "../../api/requests";
 import { ILoginData, ILoginResponse } from "../../api/types";
 import { useAuthToken } from "../../hooks/useAuthToken";
+import { LoginFormSchema, TLoginFormSchema } from "./schema";
 import useStore from "../../store";
 
 export const LoginForm = () => {
@@ -27,8 +30,9 @@ export const LoginForm = () => {
     control,
     trigger,
     handleSubmit,
-  } = useForm({
+  } = useForm<TLoginFormSchema>({
     mode: "onChange",
+    resolver: zodResolver(LoginFormSchema),
   });
 
   const { mutate } = useMutation<ILoginResponse, Error, ILoginData>({
@@ -64,64 +68,48 @@ export const LoginForm = () => {
     };
 
     mutate(user);
-    console.log(JSON.stringify(data));
   };
 
   return (
-    <form className="login-form" onSubmit={handleSubmit(handleForm)}>
+    <form className="auth-form" onSubmit={handleSubmit(handleForm)}>
       <div className="form-input__block">
         <label>Username</label>
         <Controller
           control={control}
-          rules={{ required: true, minLength: 3, maxLength: 30 }}
           render={({ field: { onChange, value } }) => (
-            <input
+            <TextField
+              variant="outlined"
               onChange={(ev) => onChange(ev)}
               value={value ? value.toString() : ""}
+              helperText={errors["nameLabel"]?.message?.toString()}
             />
           )}
           name="nameLabel"
         />
-        {errors?.nameLabel?.type === "required" && (
-          <span>The field cannot be empty.</span>
-        )}
-        {errors?.nameLabel?.type === "minLength" && (
-          <span>Username is too short.</span>
-        )}
-        {errors?.nameLabel?.type === "maxLength" && (
-          <span>Username is too long.</span>
-        )}
       </div>
       <div className="form-input__block">
         <label>Password</label>
         <Controller
           control={control}
-          rules={{ required: true, minLength: 3, maxLength: 20 }}
           render={({ field: { onChange, value } }) => (
-            <input
+            <TextField
+              variant="outlined"
               onChange={(ev) => onChange(ev)}
               value={value ? value.toString() : ""}
+              helperText={errors["passwordLabel"]?.message?.toString()}
             />
           )}
           name="passwordLabel"
         />
-        {errors?.passwordLabel?.type === "required" && (
-          <span>The field cannot be empty.</span>
-        )}
-        {errors?.passwordLabel?.type === "minLength" && (
-          <span>Password is too short.</span>
-        )}
-        {errors?.passwordLabel?.type === "maxLength" && (
-          <span>Password is too long.</span>
-        )}
       </div>
-      <button
+      <Button
         type="submit"
-        disabled={isDisabled}
+        variant="contained"
+        disabled={!isValid || isDisabled}
         onClick={() => setIsClicked(true)}
       >
         Login
-      </button>
+      </Button>
     </form>
   );
 };

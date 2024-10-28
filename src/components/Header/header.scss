@@ -13,3 +13,11 @@
     color: #000000;
   }
 }
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-top: 100px;
+  width: 50%;
+}

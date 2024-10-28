@@ -7,3 +7,9 @@
   text-align: center;
   color: #000000;
 }
+
+.main {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
